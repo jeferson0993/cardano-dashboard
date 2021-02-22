@@ -150,6 +150,11 @@ md = {
     });
   },
 
+  /**
+   * 
+   * @param {*} from 
+   * @param {*} align 
+   */
   showNotification: function(from, align) {
     type = ['', 'info', 'danger', 'success', 'warning', 'rose', 'primary'];
 
@@ -167,37 +172,6 @@ md = {
         align: align
       }
     });
-  },
-
-  initDocumentationCharts: function() {
-    if ($('#dailySalesChart').length != 0 && $('#websiteViewsChart').length != 0) {
-      /* ----------==========     Daily Sales Chart initialization For Documentation    ==========---------- */
-
-      dataDailySalesChart = {
-        labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-        series: [
-          [12, 17, 7, 17, 23, 18, 38]
-        ]
-      };
-
-      optionsDailySalesChart = {
-        lineSmooth: Chartist.Interpolation.cardinal({
-          tension: 0
-        }),
-        low: 0,
-        high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-        chartPadding: {
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0
-        },
-      }
-
-      var dailySalesChart = new Chartist.Line('#dailySalesChart', dataDailySalesChart, optionsDailySalesChart);
-
-      var animationHeaderChart = new Chartist.Line('#websiteViewsChart', dataDailySalesChart, optionsDailySalesChart);
-    }
   },
 
   initSliders: function() {
@@ -233,58 +207,145 @@ md = {
     }
   },
 
-  checkFullPageBackgroundImage: function() {
-    $page = $('.full-page');
-    image_src = $page.data('image');
-
-    if (image_src !== undefined) {
-      image_container = '<div class="full-page-background" style="background-image: url(' + image_src + ') "/>'
-      $page.append(image_container);
-    }
-  },
-
   initDashboardPageCharts: function() {
 
-    if ($('#dailySalesChart').length != 0 || $('#completedTasksChart').length != 0 || $('#websiteViewsChart').length != 0) {
-      /* ----------==========     Daily Chart initialization    ==========---------- */
+    if ($('#priceChart').length != 0 || $('#completedTasksChart').length != 0 || $('#marketCapChart').length != 0) {
+     
+      /* ----------==========   Current Price  Charts initialization    ==========---------- */
+      
+      let date = new Date();
+      let arr = [];
 
-      dataDailySalesChart = {
-        labels: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
-        series: [
-          [3.12, 3.17, 3.7, 4.17, 4.23, 4.8, 5.38]
-        ]
+      var dataPriceChart = {
+        labels: [],
+        series: []
       };
 
-      optionsDailySalesChart = {
-        lineSmooth: Chartist.Interpolation.cardinal({
-          tension: 0
-        }),
-        low: 0,
-        high: 10, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-        chartPadding: {
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0
-        },
+      let past_day, low = 999, high = 0, _low = 0, _high = 0;
+      for (let index = 6; index >= 0; index--) {
+        past_day = Number(date.getDate()) - index + '-' + Number(date.getMonth() + 1) + '-' + Number(date.getFullYear());
+        dataPriceChart.labels.push(past_day);
+        
+        fetch(`https://api.coingecko.com/api/v3/coins/cardano/history?date=${past_day}&localization=false`)
+        .then(response => response.json())
+        .then(json => {
+
+          if (json.market_data.current_price.brl > high) {
+            high = json.market_data.current_price.brl
+          } else if (json.market_data.current_price.brl < low) {
+            low = json.market_data.current_price.brl;
+          }
+
+          arr.push(json.market_data.current_price.brl);
+
+          if (arr.length > 6) {
+            /* console.log({low, high, _low, _high}); */
+
+            dataPriceChart.series.push(arr);
+
+            optionsDataPriceChart = {
+              lineSmooth: Chartist.Interpolation.cardinal({
+                tension: 0
+              }),
+              low: low,
+              high: high,
+              chartPadding: {
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0
+              },
+            }
+
+            var priceChart = new Chartist.Line('#priceChart', dataPriceChart, optionsDataPriceChart);
+
+            md.startAnimationForLineChart(priceChart);
+          }
+          // console.log(json);
+        })
+        .catch((error) => {
+          md.showMyNotification('top', 'center', 'danger', 'There has been a problem with your fetch operation: ' + error.message);
+          console.error('There has been a problem with your fetch operation: ' + error.message);
+        });
+        
+        
       }
 
-      var dailySalesChart = new Chartist.Line('#dailySalesChart', dataDailySalesChart, optionsDailySalesChart);
+      /* ----------==========   Market Cap  Charts initialization    ==========---------- */
 
-      // start animation for the Daily Chart
-      md.startAnimationForLineChart(dailySalesChart);
+      let _arr = [];
+      
+      var dataMarketCapChart = {
+        labels: [],
+        series: []
+      };
+
+      for (let index = 6; index >= 0; index--) {
+        past_day = Number(date.getDate()) - index + '-' + Number(date.getMonth() + 1) + '-' + Number(date.getFullYear());
+        dataMarketCapChart.labels.push(past_day);
+        
+        fetch(`https://api.coingecko.com/api/v3/coins/cardano/history?date=${past_day}&localization=false`)
+        .then(response => response.json())
+        .then(json => {
+          
+          if (Number(json.market_data.market_cap.brl.toString().substring(0,3)) > _high) {
+            _high = Number(json.market_data.market_cap.brl.toString().substring(0,3));
+            /* console.log(_high); */
+          } 
+          
+          if (_low === 0) {
+            _low = Number(json.market_data.market_cap.brl.toString().substring(0,3));
+          } else if (Number(json.market_data.market_cap.brl.toString().substring(0,3)) < low) {
+            _low = Number(json.market_data.market_cap.brl.toString().substring(0,3));
+            /* console.log(_low); */
+          }
+
+          _arr.push(Number(json.market_data.market_cap.brl.toString().substring(0,3)));
+
+          if (_arr.length > 6) {
+
+            /* console.log(_arr); */
+            dataMarketCapChart.series.push(_arr);
+
+            var optionsMarketCapChart = {
+              axisX: {
+                showGrid: false
+              },
+              low: _low,
+              high: _high,
+              chartPadding: {
+                top: 0,
+                right: 5,
+                bottom: 0,
+                left: 0
+              }
+            };
+
+            var marketCapChart = new Chartist.Bar('#marketCapChart', dataMarketCapChart, optionsMarketCapChart);
+
+            md.startAnimationForBarChart(marketCapChart);
+          }
+          // console.log(json);
+        })
+        .catch((error) => {
+          md.showMyNotification('top', 'center', 'danger', 'There has been a problem with your fetch operation: ' + error.message);
+          console.error('There has been a problem with your fetch operation: ' + error.message);
+        });
+        
+        
+      }
 
 
       /* ----------==========     Semanal Chart initialization    ==========---------- */
 
-      dataCompletedTasksChart = {
+      dataSemanalChart = {
         labels: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
         series: [
           [3.12, 3.17, 3.7, 4.17, 4.23, 4.8, 5.38]
         ]
       };
 
-      optionsCompletedTasksChart = {
+      optionsSemanalChart = {
         lineSmooth: Chartist.Interpolation.cardinal({
           tension: 0
         }),
@@ -298,47 +359,12 @@ md = {
         }
       }
 
-      var completedTasksChart = new Chartist.Line('#completedTasksChart', dataCompletedTasksChart, optionsCompletedTasksChart);
+      /* var SemanalChart = new Chartist.Line('#completedTasksChart', dataSemanalChart, optionsSemanalChart); */
 
       // start animation for the Semanal Chart - Line Chart
-      md.startAnimationForLineChart(completedTasksChart);
+      /* md.startAnimationForLineChart(SemanalChart); */
 
 
-      /* ----------==========     Anual Chart initialization    ==========---------- */
-
-      var dataWebsiteViewsChart = {
-        labels: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'],
-        series: [
-          [3.12, 3.17, 3.7, 4.17, 4.23, 4.8, 5.38]
-        ]
-      };
-      var optionsWebsiteViewsChart = {
-        axisX: {
-          showGrid: false
-        },
-        low: 0,
-        high: 10,
-        chartPadding: {
-          top: 0,
-          right: 5,
-          bottom: 0,
-          left: 0
-        }
-      };
-      var responsiveOptions = [
-        ['screen and (max-width: 640px)', {
-          seriesBarDistance: 5,
-          axisX: {
-            labelInterpolationFnc: function(value) {
-              return value[0];
-            }
-          }
-        }]
-      ];
-      var websiteViewsChart = Chartist.Bar('#websiteViewsChart', dataWebsiteViewsChart, optionsWebsiteViewsChart, responsiveOptions);
-
-      //start animation for the Anual Chart
-      md.startAnimationForBarChart(websiteViewsChart);
     }
   },
 

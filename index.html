@@ -145,33 +145,33 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="card card-chart">
                                     <div class="card-header card-header-info">
-                                        <div class="ct-chart" id="dailySalesChart"></div>
+                                        <div class="ct-chart" id="priceChart"></div>
                                     </div>
                                     <div class="card-body">
-                                        <h4 class="card-title">Gráfico Diário</h4>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card card-chart">
-                                    <div class="card-header card-header-info">
-                                        <div class="ct-chart" id="websiteViewsChart"></div>
-                                    </div>
-                                    <div class="card-body">
-                                        <h4 class="card-title">Gráfico Semanal</h4>
+                                        <h4 class="card-title">Cotação (BRL R$) - Ultimos 7 dias</h4>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="card card-chart">
                                     <div class="card-header card-header-info">
+                                        <div class="ct-chart" id="marketCapChart"></div>
+                                    </div>
+                                    <div class="card-body">
+                                        <h4 class="card-title">Capitalização (Bilhões R$) - Ultimos 7 dias</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12" style="display: none;">
+                                <div class="card card-chart">
+                                    <div class="card-header card-header-info">
                                         <div class="ct-chart" id="completedTasksChart"></div>
                                     </div>
                                     <div class="card-body">
-                                        <h4 class="card-title">Gráfico anual</h4>
+                                    <h4 class="card-title">Gráfico Semanal</h4>
                                     </div>
                                 </div>
                             </div>
@@ -427,9 +427,10 @@
 
             $('#development').html(`<span class="tim-note">{ "forks": <span class="text-primary">${json.developer_data.forks}</span>, "stars": <span class="text-info">${json.developer_data.stars}</span>, "subscribers": <span class="text-warning">${json.developer_data.subscribers}</span>, "total_issues": <span class="text-danger">${json.developer_data.total_issues}</span>, "closed_issues": <span class="text-success">${json.developer_data.closed_issues}</span> }</span>`);
 
-            console.log(json);
+            // console.log(json);
         })
         .catch((error) => {
+            md.showMyNotification('top', 'center', 'danger', 'There has been a problem with your fetch operation: ' + error.message);
             console.error('There has been a problem with your fetch operation: ' + error.message);
         });
         fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=brl&order=market_cap_desc&per_page=6&page=1&sparkline=false&price_change_percentage=24')
@@ -461,9 +462,10 @@
 
             }
             $('#tbody').html(tbody_content);
-            console.log(json);
+            // console.log(json);
         })
         .catch((error) => {
+            md.showMyNotification('top', 'center', 'danger', 'There has been a problem with your fetch operation: ' + error.message);
             console.error('There has been a problem with your fetch operation: ' + error.message);
         });
     }
