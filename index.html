@@ -243,23 +243,23 @@
                                             </div>
                                             <div class="tab-pane" id="rank1">
                                                 <h4 class="text-warning rank1"></h4>
-                                                <p class="text-warning" id="rank1_desc"></p>
+                                                <p id="rank1_desc"></p>
                                             </div>
                                             <div class="tab-pane" id="rank2">
                                                 <h4 class="text-info rank2"></h4>
-                                                <p class="text-info" id="rank2_desc"></p>
+                                                <p id="rank2_desc"></p>
                                             </div>
                                             <div class="tab-pane" id="rank3">
                                                 <h4 class="text-primary rank3"></h4>
-                                                <p class="text-primary" id="rank3_desc"></p>
+                                                <p id="rank3_desc"></p>
                                             </div>
                                             <div class="tab-pane" id="rank4">
                                                 <h4 class="text-success rank4"></h4>
-                                                <p class="text-success" id="rank4_desc"></p>
+                                                <p id="rank4_desc"></p>
                                             </div>
                                             <div class="tab-pane" id="rank5">
                                                 <h4 class="text-danger rank5"></h4>
-                                                <p class="text-danger" id="rank5_desc"></p>
+                                                <p id="rank5_desc"></p>
                                             </div>
                                         </div>
                                     </div>
@@ -440,16 +440,20 @@
             let rank = 0;
             for (let index = 0; index < 5; index++) {
                 rank = index + 1;
-                $('.rank'+rank).text(json[index].name);
+                $('.rank'+rank).text(json[index].name.toUpperCase());
                 $('#rank'+rank+'_desc')
-                .html('id: '+json[index].id+
-                ' symbol: ('+json[index].symbol+')'+
-                '<br />market_cap_rank: '+json[index].market_cap_rank+
-                '<br />high_24h: '+formatter.format(json[index].high_24h)+
-                '<br />low_24h: '+formatter.format(json[index].low_24h)+
-                '<br />ath: '+formatter.format(json[index].ath)+' ath_date: '+json[index].ath_date+
+                .html('<strong>' + formatter.format(json[index].current_price)+'</strong><br />'+
+                '<br />Símbolo: ('+json[index].symbol.toUpperCase()+')'+
+                '<br />Ranking no mercado: '+json[index].market_cap_rank+
+                '<br />Capitalização de Mercado: '+formatter.format(json[index].market_cap)+
                 '<br />'+
-                '<br />total_supply: '+json[index].total_supply+' circulating_supply: '+json[index].circulating_supply+
+                '<br />Variação das ultima 24 hrs'+
+                '<br />Alta: '+formatter.format(json[index].high_24h)+ ' | Baixa: '+formatter.format(json[index].low_24h)+
+                '<br />'+
+                '<br />Alta histórica: '+formatter.format(json[index].ath)+' em '+json[index].ath_date.substring(0,10)+
+                '<br />'+
+                '<br />Fornecimento Total: '+json[index].total_supply+' '+json[index].symbol.toUpperCase()+'s'+
+                '<br />Fornecimento Circulante: '+json[index].circulating_supply+' '+json[index].symbol.toUpperCase()+'s'+
                 '<br />');
                 tbody_content += `
                     <tr>
