@@ -287,7 +287,13 @@ md = {
       };
 
       for (let index = 6; index >= 0; index--) {
-        past_day = Number(date.getDate()) - index + '-' + Number(date.getMonth() + 1) + '-' + Number(date.getFullYear());
+        
+        if (Number(date.getDate()) - index <= 0) {
+            past_day = Number(date.getDate()) - index + 30 + '-' + Number(date.getMonth()) + '-' + Number(date.getFullYear());
+        } else {
+            past_day = Number(date.getDate()) - index + '-' + Number(date.getMonth() + 1) + '-' + Number(date.getFullYear());
+        }
+        
         dataMarketCapChart.labels.push(past_day);
         
         fetch(`https://api.coingecko.com/api/v3/coins/cardano/history?date=${past_day}&localization=false`)
